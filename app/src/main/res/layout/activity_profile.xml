@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".auth.ProfileActivity"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+    <!-- USER DATA CONTAINER -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="@dimen/default_large_margin">
+
+            <!-- PROFILE IMAGE -->
+            <ImageView
+                    android:id="@+id/profile_activity_imageview_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/ic_launcher_foreground"
+                    android:contentDescription="@string/nav_header_desc"/>
+
+        </LinearLayout>
+
+
+        <!-- PROFILE USERNAME -->
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/user_name_text_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/profile_activity_edit_text_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/default_text_size"
+                    android:text="@string/nav_header_title"
+                    android:layout_margin="@dimen/default_margin"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </LinearLayout>
+
+    <!-- BUTTONS CONTAINER -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+        <!-- BUTTON UPDATE -->
+        <Button
+                android:id="@+id/profile_activity_button_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_update_account"
+                android:textColor="#fff"
+                android:textSize="@dimen/default_text_size"
+                android:background="@drawable/ic_launcher_background"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_margin="@dimen/default_margin"
+                android:padding="@dimen/default_margin"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>

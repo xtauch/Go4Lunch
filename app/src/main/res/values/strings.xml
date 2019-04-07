@@ -1,0 +1,47 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="app_name">Go4Lunch</string>
+    <string name="notification_title">Notification</string>
+    <string name="default_notification_channel_id">tauch.xavier.go4lunch</string>
+
+
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">User Name</string>
+    <string name="nav_header_subtitle">Email</string>
+    <string name="nav_header_desc">Profile Picture</string>
+
+    <string name="button_update_account">Mettre à jour le nom d\'utilisateur</string>
+    <string name="button_delete_account">Supprimer mon compte</string>
+    <string name="button_sign_out_account">Déconnexion</string>
+    <string name="info_no_email_found">Auncune adresse email</string>
+    <string name="info_no_username_found">Aucun nom d\'utilisateur</string>
+    <string name="popup_message_confirmation_delete_account">Es-tu sûr(e) de vouloir supprimer ton compte ?</string>
+    <string name="popup_message_choice_yes">Oui !</string>
+    <string name="popup_message_choice_no">Non</string>
+
+
+    <string name="nav_lunch">YOUR LUNCH</string>
+    <string name="nav_settings">SETTINGS</string>
+    <string name="nav_logout">LOGOUT</string>
+    <string name="login">LOGIN</string>
+
+    <string name="main_activity_description">Find a nice restaurant and invite your co-workers for lunch!</string>
+
+    <string name="action_search">Search</string>
+
+    <!-- FACEBOOK PURPOSE -->
+    <string name="facebook_application_id" translatable="false">447826269288527</string>
+    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">
+        fb447826269288527
+    </string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_maps">Map</string>
+
+
+</resources>
