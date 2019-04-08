@@ -4,6 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/constraintLayout"
         tools:context=".activities.LoginActivity">
 
         <!-- MAIN CONTAINER -->
@@ -38,11 +39,24 @@
                     android:layout_margin="@dimen/default_margin"/>
 
             <androidx.appcompat.widget.AppCompatButton
-                    android:text="Button"
+                    android:text="@string/login_google"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/button2"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="50dp"
+                    android:background="@color/googleBackground"
+                    android:id="@+id/googleLoginButton"/>
 
-
+            <androidx.appcompat.widget.AppCompatButton
+                    android:text="@string/login_facebook"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="50dp"
+                    android:background="@color/facebookBackground"
+                    android:id="@+id/facebookLoginButton"/>
         </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

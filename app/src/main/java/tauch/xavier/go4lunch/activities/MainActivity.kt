@@ -10,6 +10,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.common.api.Status
 
 import com.google.android.material.navigation.NavigationView
@@ -23,6 +25,9 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import java.util.*
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import kotlinx.android.synthetic.main.nav_header_main.*
 import tauch.xavier.go4lunch.R
 
 
@@ -188,16 +193,51 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
 
 
+    // --------------------
+    // UI
+    // --------------------
 
-    companion object {
+    // 1 - Update UI when activity is creating
+    private fun updateUIWhenCreating(){
+
+        if (this.getCurrentUser() != null){
+
+            //Get picture URL from Firebase
+            if (getCurrentUser()?.photoUrl != null) {
+                Glide.with(this)
+                    .load(getCurrentUser()?.photoUrl)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(imageView)
+            }
+
+            //Get email & username from Firebase
+            val email: String? = getCurrentUser()?.email
+            val username: String? = getCurrentUser()?.displayName
+
+            //Update views with data
+            this.textInputEditTextUsername.setText(username)
+            this.textViewEmail.setText(email)
+        }
+    }
+
+
+
+
+private fun getCurrentUser(): FirebaseUser? { return FirebaseAuth.getInstance().currentUser }
+
+private fun isCurrentUserLogged(): Boolean { return (this.getCurrentUser() != null) }
+
+
+
+
+
+
+
+companion object {
 
         // Assign each fragment with a number
         private const val FRAGMENT_MAPS = 0
         private const val FRAGMENT_LISTVIEW = 1
         private const val FRAGMENT_WorkMATES = 2
     }
-
-
-
-
 }

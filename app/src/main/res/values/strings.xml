@@ -29,7 +29,16 @@
     <string name="nav_lunch">YOUR LUNCH</string>
     <string name="nav_settings">SETTINGS</string>
     <string name="nav_logout">LOGOUT</string>
-    <string name="login">LOGIN</string>
+
+
+    <string name="connection_succeed">Authentication successful</string>
+    <string name="error_authentication_canceled">Authentication canceled</string>
+    <string name="error_no_internet">No internet connexion available</string>
+    <string name="error_unknown_error">An unknown error occurred </string>
+
+
+    <string name="login_google">Sign in with Google</string>
+    <string name="login_facebook">Sign in with Facebook</string>
 
     <string name="main_activity_description">Find a nice restaurant and invite your co-workers for lunch!</string>
 

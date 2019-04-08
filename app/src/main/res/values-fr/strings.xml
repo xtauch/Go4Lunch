@@ -29,7 +29,15 @@
     <string name="nav_lunch">VOTRE REPAS</string>
     <string name="nav_settings">OPTIONS</string>
     <string name="nav_logout">DECONNEXION</string>
-    <string name="login">CONNEXION</string>
+
+
+    <string name="connection_succeed">Authentication successful</string>
+    <string name="error_authentication_canceled">Authentication canceled</string>
+    <string name="error_no_internet">No internet connexion available</string>
+    <string name="error_unknown_error">An unknown error occurred </string>
+
+    <string name="login_google">Connexion avec Google</string>
+    <string name="login_facebook">Connexion avec Facebook</string>
 
     <string name="main_activity_description">Trouvez un restaurant et invitez vos collègues à déjeuner!</string>
     <string name="action_search">Recherche</string>
