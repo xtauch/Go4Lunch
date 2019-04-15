@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "1024636345892-2fd70c2rqqjk03gsmmovscmq0f0ok629.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tauch.xavier.go4lunch",
+            "certificate_hash": "9c65f39b945db9d2ad29a137eb5e52ed1165fd77"
+          }
+        },
+        {
           "client_id": "1024636345892-299igu9l090t4hlhqlggfmf37d6eg836.apps.googleusercontent.com",
           "client_type": 3
         }

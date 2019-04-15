@@ -4,6 +4,7 @@ package tauch.xavier.go4lunch.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.constraintlayout.widget.ConstraintLayout
 
 import com.firebase.ui.auth.AuthUI
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.android.synthetic.main.activity_login.*
 
 import tauch.xavier.go4lunch.R
+import tauch.xavier.go4lunch.api.UserHelper
 import java.util.*
 
 class LoginActivity : AppCompatActivity() {
@@ -71,16 +73,16 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    fun startMainActivity() {
+    private fun startMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
 
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         // 4 - Handle SignIn Activity response on activity result
-        this.handleResponseAfterSignIn(requestCode, resultCode, data);
+        this.handleResponseAfterSignIn(requestCode, resultCode, data)
     }
 
 
@@ -98,12 +100,13 @@ class LoginActivity : AppCompatActivity() {
     // --------------------
 
     // 3 - Method that handles response after SignIn Activity close
-    private fun handleResponseAfterSignIn(requestCode: Int, resultCode: Int, data: Intent) {
+    private fun handleResponseAfterSignIn(requestCode: Int, resultCode: Int, data: Intent?) {
 
         val response: IdpResponse? = IdpResponse.fromResultIntent(data)
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
+                createUserInFirestore()
                 showSnackBar(this.constraintLayout, getString(R.string.connection_succeed))
                 startMainActivity()
             } else { // ERRORS
@@ -126,5 +129,25 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
+
+    // 1 - Http request that create user in firestore
+    private fun createUserInFirestore(){
+
+        if (this.getCurrentUser() != null){
+
+
+            val uid: String = getCurrentUser()!!.uid
+            val username: String? = getCurrentUser()!!.displayName
+            val email: String? = getCurrentUser()!!.email
+            val urlPicture: String? = if (getCurrentUser()?.photoUrl != null){
+                getCurrentUser()?.photoUrl.toString()}
+            else null
+
+            UserHelper.createUser(uid, username, email, urlPicture).addOnFailureListener {
+                Log.d("CreateUser", "Success")}
+        }
+    }
+
+    private fun getCurrentUser(): FirebaseUser? { return FirebaseAuth.getInstance().currentUser }
 
 }

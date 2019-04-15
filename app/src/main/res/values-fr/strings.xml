@@ -5,9 +5,9 @@
     <string name="default_notification_channel_id">tauch.xavier.go4lunch</string>
 
 
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_maps">Maps</string>
+    <string name="title_list">ListView</string>
+    <string name="title_workmates">Workmates</string>
 
 
     <string name="navigation_drawer_open">Ouvrir la navigation</string>

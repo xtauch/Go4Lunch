@@ -6,13 +6,21 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.ListFragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.common.api.Status
+import com.google.android.gms.tasks.OnSuccessListener
+
 
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -27,16 +35,27 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.android.synthetic.main.nav_header_main.*
+import kotlinx.android.synthetic.main.nav_header_main.view.*
 import tauch.xavier.go4lunch.R
+import tauch.xavier.go4lunch.api.UserHelper
+import tauch.xavier.go4lunch.fragments.MapFragment
+import tauch.xavier.go4lunch.fragments.WorkmatesFragment
+import tauch.xavier.go4lunch.models.User
 
 
 open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     //FOR DESIGN
     private var toolbar: Toolbar? = null
-    private var drawerLayout: DrawerLayout? = null
-    private var navigationView: NavigationView? = null
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var header: View
+
+    private lateinit var mUserImage: ImageView
+    private lateinit var mUserEmail: TextView
+    private lateinit var mUserName: TextView
 
 
 
@@ -44,12 +63,13 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+
         // Initialize Places.
         Places.initialize(applicationContext, "AIzaSyCdk8PTVsnRCFw9BUeAJ8gK4A8WXI52Uzo")
 
         // Create a new Places client instance.
         // var placesClient: PlacesClient = Places.createClient(this)
-
 
         configureToolbar()
         // Configure Autocomplete
@@ -61,8 +81,12 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         // Configure NavigationView
         this.configureNavigationView()
 
+        this.updateUIWhenCreating()
+
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
+
+
 
     private fun configureToolbar() {
         // Get the toolbar view inside the activity layout
@@ -107,16 +131,28 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_home -> {
-
+            R.id.navigation_maps -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.fragment_container,
+                        MapFragment()
+                    ).commit()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_dashboard -> {
-
+            R.id.navigation_list -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.fragment_container,
+                        ListFragment()
+                    ).commit()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
-
+            R.id.navigation_workmates -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.fragment_container,
+                        WorkmatesFragment()
+                    ).commit()
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -125,24 +161,23 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     override fun onBackPressed() {
         // 5 - Handle back click to close menu
-        if (this.drawerLayout!!.isDrawerOpen(GravityCompat.START)) {
-            this.drawerLayout!!.closeDrawer(GravityCompat.START)
+        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.drawerLayout.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
         }
     }
 
-    /*
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_search ->
+            R.id.action_search -> {}
             else -> {
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-*/
 
     // ---------------------
     // NAVIGATION ITEM CLICK
@@ -152,11 +187,10 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         when (item.itemId) {
            // R.id.activity_main_drawer_yourlunch -> startActivity(Intent(this, SearchActivity::class.java))
             R.id.activity_main_drawer_settings -> startActivity(Intent(this, ProfileActivity::class.java))
-            R.id.activity_main_drawer_logout -> startActivity(Intent(this, LoginActivity::class.java))
-            else -> {
-            }
+            R.id.activity_main_drawer_logout -> signOutUserFromFirebase()
+            else -> {}
         }
-        this.drawerLayout!!.closeDrawer(GravityCompat.START)
+        this.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
@@ -177,7 +211,7 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
-        drawerLayout!!.addDrawerListener(toggle)
+        drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
     }
 
@@ -187,7 +221,14 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     private fun configureNavigationView() {
         this.navigationView = findViewById(R.id.nav_view)
-        navigationView!!.setNavigationItemSelectedListener(this)
+        navigationView.setNavigationItemSelectedListener(this)
+
+        header = navigationView.getHeaderView(0)
+        mUserImage = header.userImage
+        mUserEmail = header.userEmail
+        mUserName = header.userName
+
+
     }
 
 
@@ -199,7 +240,6 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     // 1 - Update UI when activity is creating
     private fun updateUIWhenCreating(){
-
         if (this.getCurrentUser() != null){
 
             //Get picture URL from Firebase
@@ -207,18 +247,72 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 Glide.with(this)
                     .load(getCurrentUser()?.photoUrl)
                     .apply(RequestOptions.circleCropTransform())
-                    .into(imageView)
+                    .into(mUserImage)
             }
 
             //Get email & username from Firebase
             val email: String? = getCurrentUser()?.email
-            val username: String? = getCurrentUser()?.displayName
+
+            UserHelper.getUser(getCurrentUser()!!.uid).addOnSuccessListener { documentSnapshot ->
+                    val currentUser: User? = documentSnapshot?.toObject(User::class.java)
+                    val mUsername = currentUser?.username
+                    userName.text = mUsername
+                }
+
 
             //Update views with data
-            this.textInputEditTextUsername.setText(username)
-            this.textViewEmail.setText(email)
+
+            this.mUserEmail.text = email
         }
     }
+
+
+
+
+
+
+    // --------------------
+    // REST REQUESTS
+    // --------------------
+    // Create http requests (SignOut & Delete)
+
+     private fun signOutUserFromFirebase(){
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK))
+    }
+
+    private fun deleteUserFromFirebase(){
+        if (this.getCurrentUser() != null) {
+            AuthUI.getInstance()
+                    .delete(this)
+                    .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK))
+        }
+    }
+
+
+
+
+     private fun updateUIAfterRESTRequestsCompleted(id : Int):OnSuccessListener<Void>{
+         return OnSuccessListener {
+                  when (id){
+                      SIGN_OUT_TASK -> finish()
+                      DELETE_USER_TASK -> finish()
+                      else -> {}
+            }
+         }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -238,6 +332,13 @@ companion object {
         // Assign each fragment with a number
         private const val FRAGMENT_MAPS = 0
         private const val FRAGMENT_LISTVIEW = 1
-        private const val FRAGMENT_WorkMATES = 2
+        private const val FRAGMENT_WORKMATES = 2
+
+      //FOR DATA
+    // 2 - Identify each Http Request
+    private const val SIGN_OUT_TASK = 10
+    private const val DELETE_USER_TASK = 20
+    private const val UPDATE_USERNAME = 30
+
     }
 }

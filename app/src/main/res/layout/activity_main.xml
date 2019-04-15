@@ -53,8 +53,10 @@
 
             <fragment
                     android:layout_width="0dp"
-                    android:layout_height="match_parent" android:name="tauch.xavier.go4lunch.fragments.MapFragment"
-                    android:id="@+id/fragment3" android:layout_weight="1"/>
+                    android:layout_height="match_parent"
+                    android:name="tauch.xavier.go4lunch.fragments.MapFragment"
+                    android:id="@+id/fragment_container"
+                    android:layout_weight="1"/>
         </LinearLayout>
 
 
