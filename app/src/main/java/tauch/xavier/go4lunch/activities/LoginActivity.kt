@@ -140,10 +140,10 @@ class LoginActivity : AppCompatActivity() {
             val username: String? = getCurrentUser()!!.displayName
             val email: String? = getCurrentUser()!!.email
             val urlPicture: String? = if (getCurrentUser()?.photoUrl != null){
-                getCurrentUser()?.photoUrl.toString()}
-            else null
+                getCurrentUser()?.photoUrl.toString()} else null
+            val userHasPicked: Boolean = false
 
-            UserHelper.createUser(uid, username, email, urlPicture).addOnFailureListener {
+            UserHelper.createUser(uid, username, email, urlPicture,userHasPicked).addOnFailureListener {
                 Log.d("CreateUser", "Success")}
         }
     }

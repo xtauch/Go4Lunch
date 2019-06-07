@@ -1,6 +1,9 @@
 package tauch.xavier.go4lunch.activities
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -12,43 +15,52 @@ import android.widget.TextView
 
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.ListFragment
+
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.firebase.ui.auth.AuthUI
-import com.google.android.gms.common.api.Status
+
+
 import com.google.android.gms.tasks.OnSuccessListener
 
 
-import com.google.android.material.navigation.NavigationView
-import kotlinx.android.synthetic.main.activity_main.*
-import tauch.xavier.go4lunch.auth.ProfileActivity
-
-// Add import statements for the new library.
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment
-import java.util.*
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.DocumentSnapshot
-import kotlinx.android.synthetic.main.nav_header_main.*
+import com.firebase.ui.auth.AuthUI
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
+
+
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+
+
 import kotlinx.android.synthetic.main.nav_header_main.view.*
+import kotlinx.android.synthetic.main.activity_main.*
+import tauch.xavier.go4lunch.BuildConfig
+
 import tauch.xavier.go4lunch.R
 import tauch.xavier.go4lunch.api.UserHelper
 import tauch.xavier.go4lunch.fragments.MapFragment
 import tauch.xavier.go4lunch.fragments.WorkmatesFragment
 import tauch.xavier.go4lunch.models.User
-
+import tauch.xavier.go4lunch.auth.ProfileActivity
+import java.util.*
 
 open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     //FOR DESIGN
-    private var toolbar: Toolbar? = null
+    private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var header: View
@@ -56,32 +68,54 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     private lateinit var mUserImage: ImageView
     private lateinit var mUserEmail: TextView
     private lateinit var mUserName: TextView
+    private lateinit var autocompleteFragment : AutocompleteSupportFragment
+
+    private lateinit var placesClient : PlacesClient
 
 
+
+
+    override fun onStart() {
+        super.onStart()
+        // Create a new Places client instance
+        placesClient = Places.createClient(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-
-        // Initialize Places.
-        Places.initialize(applicationContext, "AIzaSyCdk8PTVsnRCFw9BUeAJ8gK4A8WXI52Uzo")
-
-        // Create a new Places client instance.
-        // var placesClient: PlacesClient = Places.createClient(this)
-
-        configureToolbar()
-        // Configure Autocomplete
-        configureAutocompleteSupportFragment()
-
-        // Configure DrawerLayout
+        this.configureToolbar()
         this.configureDrawerLayout()
-
-        // Configure NavigationView
         this.configureNavigationView()
-
         this.updateUIWhenCreating()
+
+
+        if (!Places.isInitialized()) {
+            // Initialize Places
+            Places.initialize(applicationContext, BuildConfig.API_KEY_GOOGLE_PLACES)
+        }
+        // Initialize the AutocompleteSupportFragment.
+        autocompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+
+        // Specify the types of place data to return.
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME))
+
+        // Set up a PlaceSelectionListener to handle the response.
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener{
+
+            override fun onPlaceSelected(place: Place) {
+                // TODO: Get info about the selected place.
+                cardView.visibility = View.INVISIBLE
+                toolbar.visibility = View.VISIBLE
+                Log.i("AutocompleteSelected", "Place: " + place.name + ", " + place.id)
+            }
+
+            override fun onError(status: Status) {
+                // TODO: Handle the error.
+                Log.i("AutocompleteError", "An error occurred: $status")
+            }
+        })
 
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
@@ -93,31 +127,7 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         this.toolbar = findViewById(R.id.toolbar)
         // Sets the Toolbar
         setSupportActionBar(toolbar)
-    }
-    // ---------------------
-    // AUTOCOMPLETE
-    // ---------------------
 
-    private fun configureAutocompleteSupportFragment() {
-        // Initialize the AutocompleteSupportFragment.
-        val autocompleteFragment: AutocompleteSupportFragment =
-            supportFragmentManager.findFragmentById(R.id.autocomplete) as AutocompleteSupportFragment
-        // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME))
-
-        // Set up a PlaceSelectionListener to handle the response.
-        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            override fun onPlaceSelected(place: Place) {
-                // TODO: Get info about the selected place.
-                Log.i("onPlaceSelected", "Place: " + place.name + ", " + place.id)
-            }
-
-            override fun onError(status: Status) {
-                // TODO: Handle the error.
-                Log.i("onErrorAutoComplete", "An error occurred: $status")
-
-            }
-        })
     }
 
 
@@ -171,7 +181,10 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_search -> {}
+            R.id.action_search -> {
+                cardView.visibility = View.VISIBLE
+                toolbar.visibility = View.INVISIBLE
+            }
             else -> {
             }
         }
@@ -203,14 +216,11 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     // ---------------------
 
     private fun configureDrawerLayout() {
-        this.drawerLayout = findViewById(R.id.drawer_layout)
-        val toggle = ActionBarDrawerToggle(
-            this,
-            drawerLayout,
-            toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
+        drawerLayout = drawer_layout
+        val toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+
+
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
     }
@@ -230,8 +240,6 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
 
     }
-
-
 
 
     // --------------------
@@ -255,13 +263,12 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
             UserHelper.getUser(getCurrentUser()!!.uid).addOnSuccessListener { documentSnapshot ->
                     val currentUser: User? = documentSnapshot?.toObject(User::class.java)
-                    val mUsername = currentUser?.username
-                    userName.text = mUsername
+                    val dbUsername = currentUser?.username
+                    this.mUserName.text = dbUsername
                 }
 
 
             //Update views with data
-
             this.mUserEmail.text = email
         }
     }
@@ -317,6 +324,8 @@ open class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
 
 
+
+
 private fun getCurrentUser(): FirebaseUser? { return FirebaseAuth.getInstance().currentUser }
 
 private fun isCurrentUserLogged(): Boolean { return (this.getCurrentUser() != null) }
@@ -334,11 +343,10 @@ companion object {
         private const val FRAGMENT_LISTVIEW = 1
         private const val FRAGMENT_WORKMATES = 2
 
-      //FOR DATA
-    // 2 - Identify each Http Request
-    private const val SIGN_OUT_TASK = 10
-    private const val DELETE_USER_TASK = 20
-    private const val UPDATE_USERNAME = 30
+       // Identify each Http Request
+        private const val SIGN_OUT_TASK = 10
+        private const val DELETE_USER_TASK = 20
+        private const val UPDATE_USERNAME = 30
 
     }
 }

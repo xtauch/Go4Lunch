@@ -18,8 +18,8 @@ object UserHelper /*CRUD requests on "users" collection*/ {
 
         // --- CREATE ---
 
-        fun createUser(uid: String, username: String?, email: String?, urlPicture: String?): Task<Void> {
-            val userToCreate = User(uid, username, email, urlPicture)
+        fun createUser(uid: String, username: String?, email: String?, urlPicture: String?, userRestaurantChoice: String, userHasPicked: Boolean): Task<Void> {
+            val userToCreate = User(uid, username, email, urlPicture, userRestaurantChoice, userHasPicked)
             return getUsersCollection().document(uid).set(userToCreate)
         }
 
